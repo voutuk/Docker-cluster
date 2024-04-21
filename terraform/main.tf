@@ -22,7 +22,7 @@ provider "aws" {
 
 
 // MasterHost
-resource "aws_instance" "AWS-1" {
+resource "aws_instance" "AWS-0" {
   availability_zone = "eu-north-1a"
   ami = "ami-0014ce3e52359afbd"
   instance_type = "t3.micro"
@@ -57,7 +57,7 @@ resource "aws_instance" "AWS-1" {
 }
 
 // Node1
-resource "aws_instance" "AWS-2" {
+resource "aws_instance" "AWS-1" {
   availability_zone = "eu-north-1a"
   ami = "ami-0014ce3e52359afbd"
   instance_type = "t3.micro"
@@ -72,27 +72,27 @@ resource "aws_instance" "AWS-2" {
   tags = { 
     Name = "Node-1"
   }
-#   provisioner "file" {                               # OFF SLOW OFF key error
-#     source      = "${path.module}/script.sh"
-#     destination = "/tmp/script.sh"
-#   }
-#   provisioner "remote-exec" {
-#     inline = [
-#       "chmod +x /tmp/script.sh",
-#       "sudo bash /tmp/script.sh",
-#     ]
-#   }
-#   connection {
-#     type        = "ssh"
-#     user        = "ubuntu"
-#     password    = ""
-#     private_key = file("${path.module}/BublikKEY.pem")
-#     host        = self.public_ip
-#   }
+  provisioner "file" {                               # OFF SLOW OFF key error
+    source      = "${path.module}/node.sh"
+    destination = "/tmp/script.sh"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/script.sh",
+      "sudo bash /tmp/script.sh",
+    ]
+  }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    password    = ""
+    private_key = file("${path.module}/Stepik1.pem")
+    host        = self.public_ip
+  }
 }
 
 // Node2
-resource "aws_instance" "AWS-3" {
+resource "aws_instance" "AWS-2" {
   availability_zone = "eu-north-1a"
   ami = "ami-0014ce3e52359afbd"
   instance_type = "t3.micro"
@@ -107,27 +107,27 @@ resource "aws_instance" "AWS-3" {
   tags = { 
     Name = "Node-2"
   }
-#   provisioner "file" {                               # OFF SLOW OFF key error
-#     source      = "${path.module}/script.sh"
-#     destination = "/tmp/script.sh"
-#   }
-#   provisioner "remote-exec" {
-#     inline = [
-#       "chmod +x /tmp/script.sh",
-#       "sudo bash /tmp/script.sh",
-#     ]
-#   }
-#   connection {
-#     type        = "ssh"
-#     user        = "ubuntu"
-#     password    = ""
-#     private_key = file("${path.module}/BublikKEY.pem")
-#     host        = self.public_ip
-#   }
+  provisioner "file" {                               # OFF SLOW OFF key error
+    source      = "${path.module}/node.sh"
+    destination = "/tmp/script.sh"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/script.sh",
+      "sudo bash /tmp/script.sh",
+    ]
+  }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    password    = ""
+    private_key = file("${path.module}/Stepik1.pem")
+    host        = self.public_ip
+  }
 }
 
 // Node3
-resource "aws_instance" "AWS-4" {
+resource "aws_instance" "AWS-3" {
   availability_zone = "eu-north-1a"
   ami = "ami-0014ce3e52359afbd"
   instance_type = "t3.micro"
@@ -142,23 +142,68 @@ resource "aws_instance" "AWS-4" {
   tags = { 
     Name = "Node-3"
   }
-#   provisioner "file" {                               # OFF SLOW OFF key error
-#     source      = "${path.module}/script.sh"
-#     destination = "/tmp/script.sh"
-#   }
-#   provisioner "remote-exec" {
-#     inline = [
-#       "chmod +x /tmp/script.sh",
-#       "sudo bash /tmp/script.sh",
-#     ]
-#   }
-#   connection {
-#     type        = "ssh"
-#     user        = "ubuntu"
-#     password    = ""
-#     private_key = file("${path.module}/BublikKEY.pem")
-#     host        = self.public_ip
-#   }
+  provisioner "file" {                               # OFF SLOW OFF key error
+    source      = "${path.module}/node.sh"
+    destination = "/tmp/script.sh"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/script.sh",
+      "sudo bash /tmp/script.sh",
+    ]
+  }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    password    = ""
+    private_key = file("${path.module}/Stepik1.pem")
+    host        = self.public_ip
+  }
+}
+
+resource "aws_security_group" "AWS-0" {
+  ingress{
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 2377
+    to_port = 2377
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 7946
+    to_port = 7946
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 7946
+    to_port = 7946
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 4789
+    to_port = 4789
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress{
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_security_group" "AWS-1" {
@@ -172,6 +217,30 @@ resource "aws_security_group" "AWS-1" {
     from_port = 80
     to_port = 80
     protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 2377
+    to_port = 2377
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 7946
+    to_port = 7946
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 7946
+    to_port = 7946
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 4789
+    to_port = 4789
+    protocol = "udp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress{
@@ -195,6 +264,30 @@ resource "aws_security_group" "AWS-2" {
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  ingress{
+    from_port = 2377
+    to_port = 2377
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 7946
+    to_port = 7946
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 7946
+    to_port = 7946
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 4789
+    to_port = 4789
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   egress{
     from_port = 0
     to_port = 0
@@ -216,6 +309,30 @@ resource "aws_security_group" "AWS-3" {
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  ingress{
+    from_port = 2377
+    to_port = 2377
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 7946
+    to_port = 7946
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 7946
+    to_port = 7946
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress{
+    from_port = 4789
+    to_port = 4789
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   egress{
     from_port = 0
     to_port = 0
@@ -224,6 +341,9 @@ resource "aws_security_group" "AWS-3" {
   }
 }
 
+output "AWS-0" {
+    value = aws_instance.AWS-0.public_ip
+}
 output "AWS-1" {
     value = aws_instance.AWS-1.public_ip
 }

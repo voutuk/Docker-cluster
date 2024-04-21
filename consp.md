@@ -12,3 +12,6 @@ docker run voutuk/corp-site:main
 `docker swarm init --advertise-addr <my ip>`
 `docker swarm leave`
 `docker node ls`
+
+docker swarm init
+docker stack deploy -c docker-compose.yml global --detach=false
