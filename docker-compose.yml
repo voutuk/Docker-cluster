@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  app:
+    image: node:latest
+    container_name: nodejs_app
+    restart: always
+    ports:
+      - "80:3000"
+    volumes:
+      - ./app:/usr/src/app
+    working_dir: /usr/src/app
+    command: bash run.sh
+    environment:
+      NODE_ENV: development
