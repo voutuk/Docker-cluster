@@ -1,4 +1,4 @@
 # terraform
 .terraform
 # Secrets
-*.tfvars
+secrets.tfvars

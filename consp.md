@@ -15,3 +15,18 @@ docker run voutuk/corp-site:main
 
 docker swarm init
 docker stack deploy -c docker-compose.yml global --detach=false
+
+
+docker swarm init --advertise-addr  192.168.1.56
+[13:50] Шупик Юрий Николаевич
+docker swarm join-token manager   глянути токен і команду мастера
+
+docker swarm join-token worker    глянути токен і команду воркера
+[13:50] Шупик Юрий Николаевич
+docker node ls
+
+docker service create --name test1 -p 8080:80 --mode global francois/apache-hostname
+
+docker servece ls
+
+docker rm -f id
