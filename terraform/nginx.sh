@@ -3,12 +3,12 @@ sudo apt-get update
 sudo apt-get install -y nginx
 sudo systemctl enable nginx
 
-cat > файл.txt << EOF
+cat > /etc/nginx/sites-available/default << EOF
 upstream app{
-  server 16.171.62.241:3000 weight=40;
-  server 51.20.106.21:3000 weight=30;
-  server 13.48.24.78:3000 weight=20;
-  server 51.20.140.187:3000 weight=10;
+  server 16.171.47.221:3000 weight=40;
+  server 13.50.4.183:3000 weight=30;
+  server 16.171.115.172:3000 weight=20;
+  server 51.20.103.103:3000 weight=10;
 }
 server {
   listen 80;
@@ -28,6 +28,7 @@ server {
 }
 EOF
 
+sudo systemctl restart nginx
 
 curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
 	| sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
@@ -38,7 +39,5 @@ curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
 
 
 curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb && 
-
 sudo dpkg -i cloudflared.deb && 
-
 sudo cloudflared service install eyJhIjoiMjA1YzFkZDdiNmJlMzQ4ZTQzYTNjOGRmZDQ3NTczYjAiLCJ0IjoiMDQ1MGI0YTctN2QyNi00ZGZiLWFkMDItNGY5ZTY5OTNkY2U0IiwicyI6IlltTmlaVFpqTmpBdFpUWXpZUzAwWW1FMExXRXhNekF0TXpBNU1HVTFNRGxqWVdKaiJ9
