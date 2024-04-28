@@ -1,0 +1,16 @@
+---
+- name: Run swap.sh script on all hosts
+  hosts: nodes
+  become: yes
+  tasks:
+    - name: Download swap.sh script
+      get_url:
+        url: https://raw.githubusercontent.com/voutuk/file/main/swap.sh
+        dest: /tmp/swap.sh
+      get_url:
+        url: https://raw.githubusercontent.com/voutuk/file/main/docker.sh
+        dest: /tmp/docker.sh
+
+    - name: Execute swap.sh script
+      shell: sudo bash /tmp/swap.sh
+      shell: sudo bash /tmp/docker.sh
