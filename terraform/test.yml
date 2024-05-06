@@ -51,7 +51,7 @@
   become: true
   tasks:
     - name: Initialize Docker Swarm
-      shell: docker swarm init --advertise-addr {{ aws_instance.master_host.private_ip }}
+      shell: docker swarm init --advertise-addr 51.20.126.193
 
     - name: Get Join Token
       shell: docker swarm join-token -q worker
@@ -61,9 +61,7 @@
       debug:
         msg: "Join Token: {{ join_token.stdout_lines[0] }}"
 
-- name: Join Docker Swarm
-  hosts: nodes
-  become: true
-  tasks:
-    - name: Join Docker Swarm
-      shell: docker swarm join --token {{ join_token.stdout_lines[0] }} {{ aws_instance.master_host.private_ip }}:2377
+    - name: Join Docker Swarm as Worker
+      command: docker swarm join --token {{ join_token.stdout_lines[0] }} 51.20.126.193:2377
+      loop: "{{ groups['nodes'] }}"
+      delegate_to: "{{ item }}"

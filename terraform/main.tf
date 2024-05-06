@@ -121,7 +121,7 @@ EOF
 EOT
   }
   provisioner "local-exec" {
-    command = "sleep 60 && ansible-playbook -u ubuntu -i ./inventory/hosts --private-key Stepik1.pem --ssh-common-args='-o StrictHostKeyChecking=accept-new' test.yml"
+    command = "sleep 60 && ansible-playbook -u ubuntu -i ./inventory/hosts --private-key Stepik1.pem --ssh-common-args='-o StrictHostKeyChecking=accept-new' playbook.yml"
   }
   
 }

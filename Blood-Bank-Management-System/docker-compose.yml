@@ -1,0 +1,34 @@
+version: '3'
+services:
+
+  bloodbank:
+    image: httpd:latest
+    ports:
+      - 80:80
+    depends_on:
+      - database
+    volumes:
+      - ./BL-bank:/usr/local/apache2/htdocs/
+    networks:
+      static_network:
+        ipv4_address: 172.31.30.10
+
+  database:
+    image: mysql:8.0.36-debian
+    environment:
+      MYSQL_ROOT_PASSWORD: qwerty123-noprod
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./db-settings:/db-settings
+    ports:
+      - "3306:3306"
+    networks:
+      static_network:
+        ipv4_address: 172.31.30.20
+
+
+networks:
+  static_network:
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
