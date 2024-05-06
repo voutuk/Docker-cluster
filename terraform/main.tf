@@ -3,7 +3,7 @@
 // terraform init -var-file=secrets.tfvars
 variable "aws_acces" {} //key
 variable "aws_secret" {} //key
-
+variable "cloudflare_api" {} //key
 
 terraform {
   required_providers {
@@ -20,14 +20,13 @@ provider "aws" {
   region = "eu-north-1"
 }
 
-
 // MasterHost
 resource "aws_instance" "master_host" {
   availability_zone       = "eu-north-1a"
   ami                     = "ami-0014ce3e52359afbd"
   instance_type           = "t3.micro"
   key_name                = "Stepik1"
-  vpc_security_group_ids  = [aws_security_group.master_host.id] // Properly reference security group
+  vpc_security_group_ids  = [aws_security_group.master_host.id]
   ebs_block_device {
     device_name = "/dev/sda1"
     volume_size = 10
@@ -40,12 +39,13 @@ resource "aws_instance" "master_host" {
 }
 
 resource "aws_instance" "node" {
-  count                   = 3
+  depends_on = [aws_instance.master_host]
+  count                   = 2
   availability_zone       = "eu-north-1a"
   ami                     = "ami-0014ce3e52359afbd"
   instance_type           = "t3.micro"
   key_name                = "Stepik1"
-  vpc_security_group_ids  = [aws_security_group.nodes.id] // Properly reference security group
+  vpc_security_group_ids  = [aws_security_group.nodes.id]
   ebs_block_device {
     device_name = "/dev/sda1"
     volume_size = 10
@@ -59,7 +59,7 @@ resource "aws_instance" "node" {
 
 
 resource "aws_security_group" "master_host" {
-  name = "master-host"
+  name = "Terraform-master-host"
   ingress{
     from_port = 22
     to_port = 22
@@ -76,25 +76,7 @@ resource "aws_security_group" "master_host" {
     from_port = 2377
     to_port = 2377
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port = 7946
-    to_port = 7946
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port = 7946
-    to_port = 7946
-    protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port = 4789
-    to_port = 4789
-    protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"] //fix
   }
   egress{
     from_port = 0
@@ -105,41 +87,11 @@ resource "aws_security_group" "master_host" {
 }
 
 resource "aws_security_group" "nodes" {
-  name = "nodes"
+  name = "Terraform-nodes"
   ingress{
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port = 2377
-    to_port = 2377
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port = 7946
-    to_port = 7946
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port = 7946
-    to_port = 7946
-    protocol = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress{
-    from_port = 4789
-    to_port = 4789
-    protocol = "udp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress{
@@ -150,15 +102,8 @@ resource "aws_security_group" "nodes" {
   }
 }
 
-output "master_host_public_ip" {
-  value = aws_instance.master_host.*.public_ip
-}
-
-output "node_public_ips" {
-  value = aws_instance.node.*.public_ip
-}
-
 resource "null_resource" "ansible_inventory" {
+  depends_on = [aws_instance.node]
   triggers = {
     master_host_ips = join(",", aws_instance.master_host.*.public_ip)
     node_ips        = join(",", aws_instance.node.*.public_ip)
@@ -166,7 +111,7 @@ resource "null_resource" "ansible_inventory" {
 
   provisioner "local-exec" {
     command = <<EOT
-cat > ./inventory/hosts.cfg <<EOF
+cat > ./inventory/hosts <<EOF
 [master]
 ${join("\n", aws_instance.master_host.*.public_ip)}
 
@@ -175,4 +120,8 @@ ${join("\n", aws_instance.node.*.public_ip)}
 EOF
 EOT
   }
+  provisioner "local-exec" {
+    command = "sleep 60 && ansible-playbook -u ubuntu -i ./inventory/hosts --private-key Stepik1.pem --ssh-common-args='-o StrictHostKeyChecking=accept-new' test.yml"
+  }
+  
 }
