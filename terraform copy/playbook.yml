@@ -1,0 +1,67 @@
+---
+- name: Configure Docker Swarm
+  hosts: all
+  become: true
+  tasks:
+    - name: Get Swap.sh script
+      get_url:
+        url: https://raw.githubusercontent.com/voutuk/file/main/swap.sh
+        dest: /tmp/swap.sh
+
+    - name: Run Swap.sh script
+      shell: sudo bash /tmp/swap.sh
+
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Add Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+- name: Create Docker Swarm
+  hosts: master
+  become: true
+  tasks:
+    - name: Initialize Docker Swarm
+      shell: docker swarm init --advertise-addr 51.20.126.193
+
+    - name: Get Join Token
+      shell: docker swarm join-token -q worker
+      register: join_token
+
+    - name: Print token
+      debug:
+        msg: "Join Token: {{ join_token.stdout_lines[0] }}"
+
+    - name: Join Docker Swarm as Worker
+      command: docker swarm join --token {{ join_token.stdout_lines[0] }} 51.20.126.193:2377
+      loop: "{{ groups['nodes'] }}"
+      delegate_to: "{{ item }}"
